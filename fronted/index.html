@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  </head>
+
+  <body>
+    <div>
+      <form>
+        <div>
+          <label for="documento">Documento</label>
+          <input type="text" name="documento" id="documento" placeholder="Ingrese su documento">
+        </div>
+        <div>
+          <label for="nombre">Nombre</label>
+          <input type="text" name="nombre" id="nombre" placeholder="Ingrese su nombre">
+        </div>
+        <div>
+          <p class="genero">Genero</p>
+          <div id="generos" class="generos"></div>
+        </div>
+        <div>
+          <label for="ciudad">Ciudades</label>
+          <select name="ciudad" id="ciudadId">
+          </select>
+        </div>
+        <div>
+          <label for="correo">Correo</label>
+          <input type="text" name="correo" id="correo" placeholder="Ingrese su correo">
+        </div>
+        <div class="checkbox-line">
+          <label for="terminos">¿Acepta las politicas de tratamientos de datos?</label>
+          <input type="checkbox" id="terminos">
+        </div>
+        <div>
+          <button class="btn">Enviar</button>
+        </div>
+      </form>
+    </div>
+
+    <h2 class="titulo">Usuarios Registrados</h2>
+    <div id="usuarios" class="usuarios-container"></div>
+
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
