@@ -32,6 +32,9 @@ const ciudad = document.querySelector("#ciudadId");
 // Selecciona el elemento HTML cuyo id sea "usuarios" (el contenedor donde se renderizarán las cards de usuarios).
 const divUsuarios = document.getElementById("usuarios");
 
+// Variable para almacenar el id del usuario que se está editando. Si es null, el formulario está en modo de creación.
+let editandoId = null;
+
 // Define un objeto llamado "reglas" que contiene las reglas de validación para cada campo del formulario.
 const reglas = {
   documento: { required: true, min: 8, max: 10, mensaje: "El campo es obligatorio" },
@@ -119,8 +122,15 @@ formulario.addEventListener("submit", async (e) => {
   // Si el formulario no es válido, se detiene la ejecución de esta función y no se envían los datos al servidor.
   if (!esValido) return;
 
-  // Si el formulario es válido, se llama a la función "postUsuarios" para enviar los datos al servidor y crear un nuevo usuario.
-  await postUsuarios(documento, nombre, genero, ciudad, correo);
+  // Si estamos editando (editandoId no es null), se llama a "updateUsuario" para actualizar el usuario existente.
+  // Si no, se llama a "postUsuarios" para crear un nuevo usuario.
+  if (editandoId) {
+    await updateUsuario(editandoId, documento, nombre, genero, ciudad, correo);
+    // Resetea el modo de edición a null para volver al modo de creación.
+    editandoId = null;
+  } else {
+    await postUsuarios(documento, nombre, genero, ciudad, correo);
+  }
 
   // Limpia los campos del formulario para que el usuario pueda ingresar nuevos datos.
   formulario.reset();
@@ -129,6 +139,40 @@ formulario.addEventListener("submit", async (e) => {
   let datosUsuarios = await getUsuarios();
   // Llama a la función "armarUsuarios" para renderizar las cards de usuarios actualizadas en el contenedor "divUsuarios".
   armarUsuarios(divUsuarios, datosUsuarios);
+});
+
+// Delegación de eventos sobre el contenedor de usuarios para detectar clics en botones de editar.
+divUsuarios.addEventListener("click", async (e) => {
+  // Verifica si el elemento clickeado (o su padre) es un botón con la clase "btn-editar".
+  const btnEditar = e.target.closest(".btn-editar");
+
+  // Si no se clickeó un botón de editar, no hace nada.
+  if (!btnEditar) return;
+
+  // Obtiene el id del usuario a editar desde el atributo data-id del botón clickeado.
+  const id = btnEditar.getAttribute("data-id");
+
+  // Obtiene todos los usuarios actuales del servidor.
+  const datosUsuarios = await getUsuarios();
+
+  // Busca el usuario cuyo id coincida con el id del botón clickeado.
+  const usuario = datosUsuarios.find(user => user.id === id);
+
+  // Si no se encuentra el usuario, no hace nada.
+  if (!usuario) return;
+
+  // Guarda el id del usuario que se está editando en la variable "editandoId".
+  editandoId = id;
+
+  // Llena los campos del formulario con los datos del usuario encontrado.
+  documento.value = usuario.documento;
+  nombre.value = usuario.nombre;
+  correo.value = usuario.correo;
+  ciudad.value = usuario.ciudad_id;
+
+  // Selecciona el radio button del género que coincida con el género del usuario.
+  const radioGenero = divGeneros.querySelector(`input[value="${usuario.genero_id}"]`);
+  if (radioGenero) radioGenero.checked = true;
 });
 
 // Delegación de eventos sobre el contenedor de usuarios para detectar clics en botones de eliminar.

@@ -29,12 +29,12 @@
   ],
   "usuarios": [
     {
-      "id": "1",
-      "documento": "123456789",
+      "documento": "11111111",
       "nombre": "John Doe",
       "genero_id": "1",
       "ciudad_id": "1",
-      "correo": "correo@correo.com"
+      "correo": "correo@correo.com",
+      "id": "1"
     },
     {
       "documento": "12121212",
@@ -71,18 +71,10 @@
     {
       "documento": "16161616",
       "nombre": "Jensen",
-      "genero_id": "1",
-      "ciudad_id": "3",
+      "genero_id": "3",
+      "ciudad_id": "1",
       "correo": "jensen@gmail.com",
       "id": "6"
-    },
-    {
-      "id": "aec8",
-      "documento": "17171717",
-      "nombre": "Edwar",
-      "genero_id": "1",
-      "ciudad_id": "2",
-      "correo": "edwar@gmail.com"
     }
   ]
 }
