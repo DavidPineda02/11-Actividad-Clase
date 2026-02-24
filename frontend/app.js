@@ -139,11 +139,11 @@ divUsuarios.addEventListener("click", async (e) => {
   // Si no se clickeó un botón de eliminar, no hace nada.
   if (!btnEliminar) return;
 
-  // Obtiene el documento del usuario a eliminar desde el atributo data-id del botón clickeado.
-  const documento = btnEliminar.getAttribute("data-documento");
+  // Obtiene el id del usuario a eliminar desde el atributo data-id del botón clickeado.
+  const id = btnEliminar.getAttribute("data-id");
 
-  // Llama a la función "deleteUsuario" para eliminar el usuario con el documento obtenido.
-  await deleteUsuario(documento);
+  // Llama a la función "deleteUsuario" para eliminar el usuario con el id obtenido.
+  await deleteUsuario(id);
 
   // Vuelve a obtener los usuarios actualizados y re-renderiza las cards.
   const datosUsuarios = await getUsuarios();
