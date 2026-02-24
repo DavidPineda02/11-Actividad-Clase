@@ -29,52 +29,20 @@
   ],
   "usuarios": [
     {
-      "documento": "11111111",
-      "nombre": "John Doe",
-      "genero_id": "1",
-      "ciudad_id": "1",
-      "correo": "correo@correo.com",
-      "id": "1"
-    },
-    {
-      "documento": "12121212",
-      "nombre": "David",
-      "genero_id": "1",
-      "ciudad_id": "1",
-      "correo": "david@gmail.com",
-      "id": "2"
-    },
-    {
-      "documento": "13131313",
-      "nombre": "Stephany",
-      "genero_id": "2",
-      "ciudad_id": "3",
-      "correo": "stephany@gmail.com",
-      "id": "3"
-    },
-    {
-      "documento": "14141414",
-      "nombre": "Dayana",
-      "genero_id": "2",
-      "ciudad_id": "2",
-      "correo": "dayana@gmail.com",
-      "id": "4"
-    },
-    {
-      "documento": "15151515",
-      "nombre": "Michael",
-      "genero_id": "1",
-      "ciudad_id": "1",
-      "correo": "michael@gmail.com",
-      "id": "5"
-    },
-    {
-      "documento": "16161616",
-      "nombre": "Jensen",
+      "documento": "828728282",
+      "nombre": "rhrgh",
       "genero_id": "3",
       "ciudad_id": "1",
-      "correo": "jensen@gmail.com",
-      "id": "6"
+      "correo": "egeg",
+      "id": 1
+    },
+    {
+      "documento": "55555555",
+      "nombre": "bfbfb",
+      "genero_id": "1",
+      "ciudad_id": "1",
+      "correo": "gdgd",
+      "id": 2
     }
   ]
 }

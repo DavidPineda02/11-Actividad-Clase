@@ -6,8 +6,8 @@ import { armarCiudades, armarGenero, armarUsuarios } from "./components/index.js
 // Importa la función "validar" desde el archivo de helpers.
 import { validar } from "./helpers/validarFormulario.js";
 
-// Importa las funciones "ciudades", "generos", "getUsuarios" y "postUsuarios" desde el archivo barrel (index.js) de la carpeta use-case.
-import { ciudades, generos, getUsuarios, postUsuarios, deleteUsuario, updateUsuario } from "./use-case/index.js";
+// Importa las funciones necesarias desde el archivo barrel (index.js) de la carpeta use-case.
+import { ciudades, generos, getUsuarios, postUsuarios, deleteUsuario, updateUsuario, getUserById } from "./use-case/index.js";
 
 // variables
 
@@ -53,143 +53,200 @@ const reglas = {
  * @returns  {Object} - {esValido: boolean, documento: string, nombre: string, genero: string, ciudad: string, correo: string }
  */
 const validarFormulario = (e) => {
+  // Ejecuta la validación del formulario con las reglas definidas y guarda el resultado.
   let respuesta = validar(e, reglas);
 
   // Remueve la clase CSS 'error' de cada campo del formulario para limpiar estilos de error previos.
-  documento.classList.remove('error')
-  nombre.classList.remove('error')
+  documento.classList.remove('error');
+  nombre.classList.remove('error');
   ciudad.classList.remove('error');
-  divGeneros.classList.remove('error')
-  correo.classList.remove('error')
-  
+  divGeneros.classList.remove('error');
+  correo.classList.remove('error');
+
   // Si la validación no es válida, agrega la clase CSS 'error' a los campos que tienen errores para mostrar los estilos de error.
   if (!respuesta.valido) {
-    if (respuesta.errores.documento) {
-      documento.classList.add('error')
-    }
-    if (respuesta.errores.nombre) {
-      nombre.classList.add('error')
-    }
-    if (respuesta.errores.ciudad) {
-      ciudad.classList.add('error')
-    }
-    if (respuesta.errores.genero) {
-      divGeneros.classList.add('error')
-    }
-    if (respuesta.errores.correo) {
-      correo.classList.add('error')
-    }
+    // Si hay error en el campo documento, le agrega la clase 'error' para mostrarlo visualmente.
+    if (respuesta.errores.documento) documento.classList.add('error');
+    // Si hay error en el campo nombre, le agrega la clase 'error' para mostrarlo visualmente.
+    if (respuesta.errores.nombre) nombre.classList.add('error');
+    // Si hay error en el campo ciudad, le agrega la clase 'error' para mostrarlo visualmente.
+    if (respuesta.errores.ciudad) ciudad.classList.add('error');
+    // Si hay error en el campo genero, le agrega la clase 'error' para mostrarlo visualmente.
+    if (respuesta.errores.genero) divGeneros.classList.add('error');
+    // Si hay error en el campo correo, le agrega la clase 'error' para mostrarlo visualmente.
+    if (respuesta.errores.correo) correo.classList.add('error');
+
+    // Retorna solo esValido en false para detener el flujo del formulario.
+    return { esValido: false };
   }
 
-  // Si la validación no es válida, retorna un objeto con la propiedad "esValido" en false para indicar que el formulario no pasó la validación.
-  if (!respuesta.valido) {
-    return {
-      esValido: respuesta.valido
-    }
-  } else {
-    return {
-      esValido: respuesta.valido,
-      documento: documento.value,
-      nombre: nombre.value,
-      genero: e.querySelector('input[name="genero"]:checked').value,
-      ciudad: ciudad.value,
-      correo: correo.value
-    }
-  }
-}
+  // Si la validación es exitosa, retorna un objeto con todos los valores del formulario.
+  return {
+    esValido: true,
+    documento: documento.value,
+    nombre: nombre.value,
+    // Obtiene el valor del radio button de género que esté seleccionado.
+    genero: e.querySelector('input[name="genero"]:checked').value,
+    ciudad: ciudad.value,
+    correo: correo.value
+  };
+};
 
-// EVENTOS
-
-// Agrega un escuchador de eventos al documento completo que se ejecuta cuando el DOM ha sido completamente cargado.
-document.addEventListener("DOMContentLoaded", async () => {
-  // Obtiene los datos de ciudades, géneros y usuarios desde el servidor usando las funciones importadas.
-  let datosCiudades = await ciudades();
-  let datosGeneros = await generos();
-  let datosUsuarios = await getUsuarios();
-
-  // Llama a las funciones para renderizar los géneros, ciudades y usuarios en sus respectivos contenedores.
-  armarGenero(divGeneros, datosGeneros);
-  armarCiudades(ciudad, datosCiudades);
-  armarUsuarios(divUsuarios, datosUsuarios);
-})
-
-// Agrega un escuchador de eventos al formulario que se ejecuta cuando el usuario hace clic en el botón de enviar (submit).
-formulario.addEventListener("submit", async (e) => {
-  // Previene el comportamiento por defecto del formulario que recarga la página al enviar.
-  e.preventDefault();
-  // Valida los campos del formulario usando la función "validarFormulario" y guarda el resultado en constantes.
-  const { esValido, documento, nombre, genero, ciudad, correo } = validarFormulario(e.target);
-  // Si el formulario no es válido, se detiene la ejecución de esta función y no se envían los datos al servidor.
-  if (!esValido) return;
-
-  // Si estamos editando (editandoId no es null), se llama a "updateUsuario" para actualizar el usuario existente.
-  // Si no, se llama a "postUsuarios" para crear un nuevo usuario.
-  if (editandoId) {
-    await updateUsuario(editandoId, documento, nombre, genero, ciudad, correo);
-    // Resetea el modo de edición a null para volver al modo de creación.
-    editandoId = null;
-  } else {
-    await postUsuarios(documento, nombre, genero, ciudad, correo);
-  }
-
-  // Limpia los campos del formulario para que el usuario pueda ingresar nuevos datos.
-  formulario.reset();
-
-  // Vuelve a obtener los usuarios y re-renderiza las cards
-  let datosUsuarios = await getUsuarios();
-  // Llama a la función "armarUsuarios" para renderizar las cards de usuarios actualizadas en el contenedor "divUsuarios".
-  armarUsuarios(divUsuarios, datosUsuarios);
-});
-
-// Delegación de eventos sobre el contenedor de usuarios para detectar clics en botones de editar.
-divUsuarios.addEventListener("click", async (e) => {
-  // Verifica si el elemento clickeado (o su padre) es un botón con la clase "btn-editar".
-  const btnEditar = e.target.closest(".btn-editar");
-
-  // Si no se clickeó un botón de editar, no hace nada.
-  if (!btnEditar) return;
-
-  // Obtiene el id del usuario a editar desde el atributo data-id del botón clickeado.
-  const id = btnEditar.getAttribute("data-id");
-
-  // Obtiene todos los usuarios actuales del servidor.
+/**
+ * Función para recargar y re-renderizar la lista de usuarios desde el servidor.
+ */
+const recargarUsuarios = async () => {
+  // Obtiene la lista actualizada de usuarios desde el servidor.
   const datosUsuarios = await getUsuarios();
+  // Llama a "armarUsuarios" para renderizar las cards actualizadas en el contenedor.
+  armarUsuarios(divUsuarios, datosUsuarios);
+};
 
-  // Busca el usuario cuyo id coincida con el id del botón clickeado.
-  const usuario = datosUsuarios.find(user => user.id === id);
+/**
+ * Función para limpiar el formulario y devolverlo al modo de creación.
+ */
+const limpiarFormulario = () => {
+  // Resetea todos los campos del formulario a sus valores por defecto.
+  formulario.reset();
+  // Cambia el texto del botón de envío a "Enviar" para indicar que está en modo creación.
+  formulario.querySelector('button').textContent = "Enviar";
+  // Resetea el id de edición a null para volver al modo de creación.
+  editandoId = null;
+};
 
-  // Si no se encuentra el usuario, no hace nada.
-  if (!usuario) return;
+/**
+ * Función para crear un nuevo usuario en el servidor y recargar la lista.
+ * 
+ * @param {string} doc - Documento del usuario
+ * @param {string} nom - Nombre del usuario
+ * @param {string} gen - Género del usuario
+ * @param {string} ciu - Ciudad del usuario
+ * @param {string} cor - Correo del usuario
+ */
+const crearUsuario = async (doc, nom, gen, ciu, cor) => {
+  // Llama a "postUsuarios" para crear el nuevo usuario en el servidor con los datos del formulario.
+  await postUsuarios(doc, nom, gen, ciu, cor);
+  // Limpia el formulario y lo devuelve al modo de creación.
+  limpiarFormulario();
+  // Recarga y re-renderiza la lista de usuarios para mostrar el nuevo usuario.
+  await recargarUsuarios();
+};
 
-  // Guarda el id del usuario que se está editando en la variable "editandoId".
-  editandoId = id;
+/**
+ * Función para cargar los datos de un usuario en el formulario para editarlo.
+ * 
+ * @param {string} usuarioId - Identificador del usuario a consultar
+ */
+const consultarUsuario = async (usuarioId) => {
+  // Obtiene los datos del usuario específico desde el servidor usando su id.
+  const usuario = await getUserById(usuarioId);
 
-  // Llena los campos del formulario con los datos del usuario encontrado.
+  // Asigna los valores del usuario a los campos del formulario para que puedan ser editados.
   documento.value = usuario.documento;
   nombre.value = usuario.nombre;
   correo.value = usuario.correo;
   ciudad.value = usuario.ciudad_id;
 
-  // Selecciona el radio button del género que coincida con el género del usuario.
+  // Busca el radio button cuyo valor coincida con el género del usuario y lo marca como seleccionado.
   const radioGenero = divGeneros.querySelector(`input[value="${usuario.genero_id}"]`);
+  // Si se encuentra el radio button correspondiente, lo marca como seleccionado.
   if (radioGenero) radioGenero.checked = true;
+
+  // Guarda el id del usuario en edición para que el submit sepa que debe actualizar y no crear.
+  editandoId = usuarioId;
+  // Cambia el texto del botón de envío a "Editar" para indicar que está en modo edición.
+  formulario.querySelector('button').textContent = "Editar";
+};
+
+/**
+ * Función para eliminar un usuario con animación de salida.
+ * 
+ * @param {string} usuarioId - Identificador del usuario a eliminar
+ * @param {HTMLElement} card - Elemento de la card del usuario en el DOM
+ */
+const eliminarUsuario = (usuarioId, card) => {
+  // Agrega la clase "eliminando" a la card para activar la animación de salida.
+  card.classList.add('eliminando');
+  // Escucha el evento que se dispara cuando termina la animación CSS de la card.
+  card.addEventListener('transitionend', async () => {
+    // Llama a "deleteUsuario" para eliminar el usuario del servidor.
+    await deleteUsuario(usuarioId);
+    // Recarga y re-renderiza la lista de usuarios para reflejar la eliminación.
+    await recargarUsuarios();
+  }, { once: true }); // 'once' asegura que el evento se dispare solo una vez.
+};
+
+// EVENTOS
+
+// Agrega un escuchador de eventos al documento completo que se ejecuta cuando el DOM ha sido completamente cargado.
+document.addEventListener("DOMContentLoaded", async () => {
+  // Obtiene los datos de ciudades, géneros y usuarios desde el servidor de forma simultánea para mayor eficiencia.
+  const [datosCiudades, datosGeneros, datosUsuarios] = await Promise.all([ciudades(), generos(), getUsuarios()]);
+
+  // Llama a las funciones para renderizar los géneros, ciudades y usuarios en sus respectivos contenedores.
+  armarGenero(divGeneros, datosGeneros);
+  armarCiudades(ciudad, datosCiudades);
+  armarUsuarios(divUsuarios, datosUsuarios);
 });
 
-// Delegación de eventos sobre el contenedor de usuarios para detectar clics en botones de eliminar.
+// Agrega un escuchador de eventos al formulario que se ejecuta cuando el usuario hace clic en el botón de enviar (submit).
+formulario.addEventListener("submit", async (e) => {
+  // Previene el comportamiento por defecto del formulario que recarga la página al enviar.
+  e.preventDefault();
+
+  // Valida los campos del formulario usando la función "validarFormulario" y guarda el resultado en constantes.
+  const { esValido, documento: doc, nombre: nom, genero, ciudad: ciu, correo: cor } = validarFormulario(e.target);
+
+  // Si el formulario no es válido, se detiene la ejecución y no se envían los datos al servidor.
+  if (!esValido) return;
+
+  // Si estamos en modo edición (editandoId no es null), actualiza el usuario existente.
+  if (editandoId) {
+    // Llama a "updateUsuario" con el id del usuario en edición y los nuevos datos del formulario.
+    await updateUsuario(editandoId, doc, nom, genero, ciu, cor);
+    // Limpia el formulario y lo devuelve al modo de creación.
+    limpiarFormulario();
+    // Recarga y re-renderiza la lista de usuarios para reflejar los cambios.
+    await recargarUsuarios();
+  } else {
+    // Si estamos en modo creación, llama a "crearUsuario" para crear el nuevo usuario.
+    await crearUsuario(doc, nom, genero, ciu, cor);
+  }
+});
+
+// Delegación de eventos unificada para editar y eliminar usuarios.
 divUsuarios.addEventListener("click", async (e) => {
-  // Verifica si el elemento clickeado (o su padre) es un botón con la clase "btn-eliminar".
+
+  // --- EDITAR ---
+  // Busca el botón de editar más cercano al elemento que fue clickeado.
+  const btnEditar = e.target.closest(".btn-editar");
+
+  // Si se encontró un botón de editar, llama a "consultarUsuario" para cargar sus datos en el formulario.
+  if (btnEditar) {
+    // Obtiene el id del usuario a editar desde el atributo "data-id" del botón.
+    const id = btnEditar.getAttribute("data-id");
+    // Llama a "consultarUsuario" para obtener los datos del usuario y cargarlos en el formulario.
+    await consultarUsuario(id);
+    // Detiene la ejecución para que no continúe hacia la lógica de eliminar.
+    return;
+  }
+
+  // --- ELIMINAR ---
+  // Busca el botón de eliminar más cercano al elemento que fue clickeado.
   const btnEliminar = e.target.closest(".btn-eliminar");
 
-  // Si no se clickeó un botón de eliminar, no hace nada.
-  if (!btnEliminar) return;
+  // Si se encontró un botón de eliminar, procede con la lógica de eliminación.
+  if (btnEliminar) {
+    // Obtiene el id del usuario a eliminar desde el atributo "data-id" del botón.
+    const id = btnEliminar.getAttribute("data-id");
 
-  // Obtiene el id del usuario a eliminar desde el atributo data-id del botón clickeado.
-  const id = btnEliminar.getAttribute("data-id");
+    // Muestra un diálogo de confirmación al usuario antes de proceder con la eliminación.
+    if (!confirm("¿Estás seguro de que deseas eliminar este usuario?")) return;
 
-  // Llama a la función "deleteUsuario" para eliminar el usuario con el id obtenido.
-  await deleteUsuario(id);
+    // Busca la card del usuario en el DOM para aplicarle la animación de salida.
+    const card = btnEliminar.closest('.card');
 
-  // Vuelve a obtener los usuarios actualizados y re-renderiza las cards.
-  const datosUsuarios = await getUsuarios();
-  armarUsuarios(divUsuarios, datosUsuarios);
+    // Llama a "eliminarUsuario" pasándole el id y la card para que gestione la animación y la eliminación.
+    eliminarUsuario(id, card);
+  }
 });

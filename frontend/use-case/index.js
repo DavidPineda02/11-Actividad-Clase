@@ -21,3 +21,6 @@ export { deleteUsuario } from "./usuarios/deleteUsuario.js";
 
 // Re-exporta la función "putUsuario" desde el archivo "putUsuario.js" ubicado en la subcarpeta "usuarios".
 export { updateUsuario } from "./usuarios/updateUsuario.js";
+
+// Re-exporta la función "getUserById" desde el archivo "getUserById.js" ubicado en la subcarpeta "usuarios".
+export { getUserById } from "./usuarios/getUserById.js";
